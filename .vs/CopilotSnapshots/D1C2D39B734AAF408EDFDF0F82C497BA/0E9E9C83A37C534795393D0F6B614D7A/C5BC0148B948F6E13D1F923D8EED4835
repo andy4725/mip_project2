@@ -1,0 +1,30 @@
+﻿using System.Data.Entity;
+using System.Data.SQLite;
+using Project_2_Warehouse.Models;
+
+namespace Project_2_Warehouse.Data
+{
+    /// <summary>Entity Framework context backed by the SQLite warehouse database.</summary>
+    public class WarehouseContext : DbContext
+    {
+        public WarehouseContext() : base("name=WarehouseContext")
+        {
+            Database.SetInitializer<WarehouseContext>(null);
+        }
+
+        public DbSet<Produs> Produse { get; set; }
+        public DbSet<CategorieProdus> Categorii { get; set; }
+        public DbSet<IstoricVanzari> IstoricVanzari { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Produs>()
+                .HasRequired(p => p.Categorie)
+                .WithMany(c => c.Produse)
+                .HasForeignKey(p => p.IdCategorie)
+                .WillCascadeOnDelete(false);
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}

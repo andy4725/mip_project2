@@ -1,0 +1,28 @@
+﻿using System;
+using System.Windows.Forms;
+using Project_2_Warehouse.Services;
+
+namespace Project_2_Warehouse
+{
+    public partial class SellProductForm : Form
+    {
+        private readonly ProductView product;
+        public SellProductForm(ProductView selectedProduct)
+        {
+            product = selectedProduct;
+            InitializeComponent();
+            productLabel.Text = string.Format("{0} ({1}) - disponibil: {2}", product.Denumire, product.Categorie, product.Cantitate);
+            quantityNumeric.Maximum = product.Cantitate;
+        }
+        private async void ConfirmSale(object sender, EventArgs e)
+        {
+            try
+            {
+                await WarehouseService.SellProductAsync(product.Id, (int)quantityNumeric.Value);
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.InnerException == null ? ex.Message : ex.InnerException.Message, "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+    }
+}

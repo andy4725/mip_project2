@@ -1,0 +1,18 @@
+namespace Project_2_Warehouse
+{
+    partial class categorieForm
+    {
+        private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.DataGridView categoryGrid;
+        private System.Windows.Forms.TextBox nameText;
+        private System.Windows.Forms.Button addButton;
+        protected override void Dispose(bool disposing) { if (disposing && components != null) components.Dispose(); base.Dispose(disposing); }
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container(); categoryGrid = new System.Windows.Forms.DataGridView(); nameText = new System.Windows.Forms.TextBox(); addButton = new System.Windows.Forms.Button();
+            categoryGrid.Dock = System.Windows.Forms.DockStyle.Bottom; categoryGrid.Height = 260; categoryGrid.ReadOnly = true; categoryGrid.AutoGenerateColumns = true;
+            nameText.Location = new System.Drawing.Point(20, 20); nameText.Width = 250; addButton.Text = "Add Category"; addButton.Location = new System.Drawing.Point(280, 18); addButton.Click += new System.EventHandler(AddCategory);
+            Controls.Add(categoryGrid); Controls.Add(nameText); Controls.Add(addButton); ClientSize = new System.Drawing.Size(500, 330); Text = "Product Categories"; StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+        }
+    }
+}

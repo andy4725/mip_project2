@@ -1,0 +1,136 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Project_2_Warehouse.Data;
+using Project_2_Warehouse.Models;
+
+namespace Project_2_Warehouse.Services
+{
+    /// <summary>Application data service. Each public operation uses the thread pool.</summary>
+    public static class WarehouseService
+    {
+        public static Task<List<ProductView>> GetProductsAsync(string filter)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    var query = db.Produse.Include("Categorie").AsQueryable();
+                    if (!string.IsNullOrWhiteSpace(filter))
+                    {
+                        filter = filter.Trim();
+                        query = query.Where(p => p.Denumire.Contains(filter) || p.Descriere.Contains(filter) || p.Categorie.Denumire.Contains(filter));
+                    }
+                    return query.OrderBy(p => p.Denumire).Select(p => new ProductView
+                    {
+                        Id = p.Id, Denumire = p.Denumire, Descriere = p.Descriere,
+                        DataIntrare = p.DataIntrare, DataExpirare = p.DataExpirare,
+                        Cantitate = p.Cantitate, IdCategorie = p.IdCategorie,
+                        Categorie = p.Categorie.Denumire
+                    }).ToList();
+                }
+            });
+        }
+
+        public static Task<List<CategorieProdus>> GetCategoriesAsync()
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext()) return db.Categorii.OrderBy(c => c.Denumire).ToList();
+            });
+        }
+
+        public static Task AddCategoryAsync(string name)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    db.Categorii.Add(new CategorieProdus { Denumire = name.Trim() });
+                    db.SaveChanges();
+                }
+            });
+        }
+
+        public static Task AddProductAsync(Produs product)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext()) { db.Produse.Add(product); db.SaveChanges(); }
+            });
+        }
+
+        public static Task AddExistingQuantityAsync(int productId, int quantity)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    var product = db.Produse.Find(productId);
+                    if (product == null) throw new InvalidOperationException("Produsul nu există.");
+                    product.Cantitate += quantity;
+                    db.SaveChanges();
+                }
+            });
+        }
+
+        public static Task SellProductAsync(int productId, int quantity)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    var product = db.Produse.Find(productId);
+                    if (product == null) throw new InvalidOperationException("Produsul nu mai există.");
+                    if (quantity <= 0 || quantity > product.Cantitate) throw new InvalidOperationException("Cantitatea vândută este invalidă.");
+                    db.IstoricVanzari.Add(new IstoricVanzari { IdProdus = product.Id, Cantitate = quantity, DataVanzare = DateTime.Now });
+                    product.Cantitate -= quantity;
+                    if (product.Cantitate == 0) db.Produse.Remove(product);
+                    db.SaveChanges();
+                    transaction.Commit();
+                }
+            });
+        }
+
+        public static Task<List<SaleView>> GetSalesAsync()
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    return (from sale in db.IstoricVanzari
+                            join product in db.Produse on sale.IdProdus equals product.Id into productGroup
+                            from product in productGroup.DefaultIfEmpty()
+                            join category in db.Categorii on product.IdCategorie equals category.Id into categoryGroup
+                            from category in categoryGroup.DefaultIfEmpty()
+                            orderby sale.DataVanzare descending
+                            select new SaleView { Id = sale.Id, IdProdus = sale.IdProdus, Cantitate = sale.Cantitate, DataVanzare = sale.DataVanzare, Categorie = category == null ? "Produs șters" : category.Denumire, DenumireProdus = product == null ? "Produs șters" : product.Denumire }).ToList();
+                }
+            });
+        }
+    }
+
+    public class ProductView
+    {
+        public int Id { get; set; }
+        public string Denumire { get; set; }
+        public string Descriere { get; set; }
+        public DateTime DataIntrare { get; set; }
+        public DateTime DataExpirare { get; set; }
+        public int Cantitate { get; set; }
+        public int IdCategorie { get; set; }
+        public string Categorie { get; set; }
+    }
+
+    public class SaleView
+    {
+        public int Id { get; set; }
+        public int IdProdus { get; set; }
+        public string DenumireProdus { get; set; }
+        public string Categorie { get; set; }
+        public int Cantitate { get; set; }
+        public DateTime DataVanzare { get; set; }
+    }
+}

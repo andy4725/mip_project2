@@ -1,0 +1,27 @@
+namespace Project_2_Warehouse
+{
+    partial class AddProductForm
+    {
+        private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.TextBox idText, nameText, descriptionText, quantityText;
+        private System.Windows.Forms.ComboBox categoryCombo;
+        private System.Windows.Forms.DateTimePicker entryDate, expiryDate;
+        private System.Windows.Forms.Button saveButton, cancelButton;
+        protected override void Dispose(bool disposing) { if (disposing && components != null) components.Dispose(); base.Dispose(disposing); }
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+            idText = new System.Windows.Forms.TextBox(); nameText = new System.Windows.Forms.TextBox(); descriptionText = new System.Windows.Forms.TextBox(); quantityText = new System.Windows.Forms.TextBox(); categoryCombo = new System.Windows.Forms.ComboBox(); entryDate = new System.Windows.Forms.DateTimePicker(); expiryDate = new System.Windows.Forms.DateTimePicker(); saveButton = new System.Windows.Forms.Button(); cancelButton = new System.Windows.Forms.Button();
+            var idLabel = new System.Windows.Forms.Label(); idLabel.Text = "Product ID:"; idLabel.Location = new System.Drawing.Point(20, 20); idLabel.AutoSize = true; idText.Location = new System.Drawing.Point(150, 17); idText.Width = 250;
+            var nameLabel = new System.Windows.Forms.Label(); nameLabel.Text = "Name (max. 30):"; nameLabel.Location = new System.Drawing.Point(20, 58); nameLabel.AutoSize = true; nameText.Location = new System.Drawing.Point(150, 55); nameText.Width = 250; nameText.MaxLength = 30;
+            var descLabel = new System.Windows.Forms.Label(); descLabel.Text = "Description (max. 500):"; descLabel.Location = new System.Drawing.Point(20, 96); descLabel.AutoSize = true; descriptionText.Location = new System.Drawing.Point(150, 93); descriptionText.Width = 250; descriptionText.MaxLength = 500; descriptionText.Multiline = true; descriptionText.Height = 55;
+            var categoryLabel = new System.Windows.Forms.Label(); categoryLabel.Text = "Category:"; categoryLabel.Location = new System.Drawing.Point(20, 165); categoryLabel.AutoSize = true; categoryCombo.Location = new System.Drawing.Point(150, 162); categoryCombo.Width = 250; categoryCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            var entryLabel = new System.Windows.Forms.Label(); entryLabel.Text = "Entry date:"; entryLabel.Location = new System.Drawing.Point(20, 203); entryLabel.AutoSize = true; entryDate.Location = new System.Drawing.Point(150, 200);
+            var expiryLabel = new System.Windows.Forms.Label(); expiryLabel.Text = "Expiration date:"; expiryLabel.Location = new System.Drawing.Point(20, 241); expiryLabel.AutoSize = true; expiryDate.Location = new System.Drawing.Point(150, 238);
+            var quantityLabel = new System.Windows.Forms.Label(); quantityLabel.Text = "Quantity:"; quantityLabel.Location = new System.Drawing.Point(20, 279); quantityLabel.AutoSize = true; quantityText.Location = new System.Drawing.Point(150, 276); quantityText.Width = 250;
+            saveButton.Text = "Save"; saveButton.Location = new System.Drawing.Point(150, 320); saveButton.Click += new System.EventHandler(SaveProdus); cancelButton.Text = "Cancel"; cancelButton.Location = new System.Drawing.Point(245, 320); cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            Controls.AddRange(new System.Windows.Forms.Control[] { idLabel, idText, nameLabel, nameText, descLabel, descriptionText, categoryLabel, categoryCombo, entryLabel, entryDate, expiryLabel, expiryDate, quantityLabel, quantityText, saveButton, cancelButton });
+            ClientSize = new System.Drawing.Size(440, 370); StartPosition = System.Windows.Forms.FormStartPosition.CenterParent; AcceptButton = saveButton; CancelButton = cancelButton;
+        }
+    }
+}

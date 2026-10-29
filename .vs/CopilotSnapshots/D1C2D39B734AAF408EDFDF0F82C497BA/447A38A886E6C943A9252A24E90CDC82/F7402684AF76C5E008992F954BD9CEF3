@@ -1,0 +1,21 @@
+﻿using System;
+using System.Windows.Forms;
+using Project_2_Warehouse.Services;
+
+namespace Project_2_Warehouse
+{
+    public partial class CategoryForm : Form
+    {
+        public CategoryForm() { InitializeComponent(); Load += (s, e) => LoadCategories(); }
+        private async void LoadCategories()
+        {
+            try { categoryGrid.DataSource = await WarehouseService.GetCategoriesAsync(); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Error"); }
+        }
+        private async void AddCategory(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(nameText.Text) || nameText.Text.Trim().Length > 50) { MessageBox.Show("A category name is required and must be at most 50 characters."); return; }
+            try { await WarehouseService.AddCategoryAsync(nameText.Text); nameText.Clear(); LoadCategories(); } catch (Exception ex) { MessageBox.Show(ex.Message, "Error"); }
+        }
+    }
+}

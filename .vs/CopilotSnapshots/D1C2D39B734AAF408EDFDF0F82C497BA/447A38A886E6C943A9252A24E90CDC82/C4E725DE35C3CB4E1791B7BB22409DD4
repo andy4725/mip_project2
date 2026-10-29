@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Project_2_Warehouse.Models;
+using Project_2_Warehouse.Services;
+
+namespace Project_2_Warehouse
+{
+    public partial class AddProductForm : Form
+    {
+        private readonly bool existing;
+        public AddProductForm(bool existingProduct)
+        {
+            existing = existingProduct;
+            InitializeComponent();
+            Text = existing ? "Adaugă cantitate produs existent" : "Adaugă produs nou";
+            Load += async (s, e) => { if (!existing) await LoadCategories(); };
+        }
+
+        private async Task LoadCategories()
+        {
+            try { categoryCombo.DataSource = await WarehouseService.GetCategoriesAsync(); categoryCombo.DisplayMember = "Denumire"; categoryCombo.ValueMember = "Id"; }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Eroare"); }
+        }
+
+        private async void SaveProduct(object sender, EventArgs e)
+        {
+            try
+            {
+                int quantity;
+                if (!int.TryParse(quantityText.Text, out quantity) || quantity <= 0) throw new InvalidOperationException("Cantitatea trebuie să fie pozitivă.");
+                if (existing)
+                {
+                    int id;
+                    if (!int.TryParse(idText.Text, out id)) throw new InvalidOperationException("Introduceți un identificator valid.");
+                    await WarehouseService.AddExistingQuantityAsync(id, quantity);
+                }
+                else
+                {
+                    if (categoryCombo.SelectedValue == null) throw new InvalidOperationException("Selectați o categorie.");
+                    await WarehouseService.AddProductAsync(new Produs { Denumire = nameText.Text.Trim(), Descriere = descriptionText.Text.Trim(), DataIntrare = entryDate.Value.Date, DataExpirare = expiryDate.Value.Date, Cantitate = quantity, IdCategorie = (int)categoryCombo.SelectedValue });
+                }
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+            catch (Exception ex) { MessageBox.Show(ex.InnerException == null ? ex.Message : ex.InnerException.Message, "Eroare", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+    }
+}

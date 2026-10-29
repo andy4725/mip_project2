@@ -1,0 +1,33 @@
+﻿using System.Data.Entity;
+using System.Data.SQLite;
+using Project_2_Warehouse.Models;
+
+namespace Project_2_Warehouse.Data
+{
+    public class WarehouseContext : DbContext
+    {
+        public WarehouseContext() : base("name=WarehouseContext")
+        {
+            Database.SetInitializer<WarehouseContext>(null);
+        }
+
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductCategory> Categories { get; set; }
+        public DbSet<SaleHistory> SalesHistory { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Product>()
+                .HasRequired(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Product>().ToTable("Products");
+            modelBuilder.Entity<ProductCategory>().ToTable("ProductCategories");
+            modelBuilder.Entity<SaleHistory>().ToTable("SalesHistories");
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}

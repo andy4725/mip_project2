@@ -1,0 +1,44 @@
+using System;
+using System.Configuration;
+using System.IO;
+using System.Windows.Forms;
+using System.Data.SQLite;
+
+namespace Project_2_Warehouse
+{
+    internal static class Program
+    {
+        [STAThread]
+        static void Main()
+        {
+            // Remove an empty database left by a failed first start.
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppDomain.CurrentDomain.BaseDirectory;
+            var databasePath = Path.Combine(dataDirectory, "warehouse.sqlite");
+            if (File.Exists(databasePath) && new FileInfo(databasePath).Length == 0) File.Delete(databasePath);
+            InitializeDatabase(dataDirectory);
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+
+        private static void InitializeDatabase(string dataDirectory)
+        {
+            // Create the database tables before the forms start loading data.
+            var connectionString = ConfigurationManager.ConnectionStrings["WarehouseContext"].ConnectionString.Replace("|DataDirectory|", dataDirectory);
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+CREATE TABLE IF NOT EXISTS CategorieProdus (id INTEGER PRIMARY KEY AUTOINCREMENT, denumire TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS Produs (id INTEGER PRIMARY KEY AUTOINCREMENT, denumire TEXT NOT NULL, descriere TEXT, dataIntrare DATETIME NOT NULL, dataExpirare DATETIME NOT NULL, cantitate INTEGER NOT NULL, idCategorie INTEGER NOT NULL, FOREIGN KEY (idCategorie) REFERENCES CategorieProdus(id));
+CREATE TABLE IF NOT EXISTS IstoricVanzari (id INTEGER PRIMARY KEY AUTOINCREMENT, idProdus INTEGER NOT NULL, cantitate INTEGER NOT NULL, dataVanzare DATETIME NOT NULL);";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+    }
+}

@@ -1,0 +1,17 @@
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.csproj.AssemblyReference.cache
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.Properties.Resources.resources
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.csproj.GenerateResource.cache
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.csproj.CoreCompileInputs.cache
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\Project_2_Warehouse.exe.config
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\Project_2_Warehouse.exe
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\Project_2_Warehouse.pdb
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\EntityFramework.dll
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\EntityFramework.SqlServer.dll
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\EntityFramework.xml
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\EntityFramework.SqlServer.xml
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_.0BCCAB14.Up2Date
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.exe
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\obj\Debug\Project_2_Warehouse.pdb
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\System.Data.SQLite.dll
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\System.Data.SQLite.EF6.dll
+C:\C#\Project_2_Warehouse\Project_2_Warehouse\bin\Debug\System.Data.SQLite.xml

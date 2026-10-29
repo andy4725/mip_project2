@@ -1,0 +1,47 @@
+﻿using System;
+using System.Configuration;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SQLite;
+
+namespace Project_2_Warehouse
+{
+    internal static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string ?? AppDomain.CurrentDomain.BaseDirectory;
+            var databasePath = Path.Combine(dataDirectory, "warehouse.sqlite");
+            if (File.Exists(databasePath) && new FileInfo(databasePath).Length == 0) File.Delete(databasePath);
+            InitializeDatabase(dataDirectory);
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+        }
+
+        private static void InitializeDatabase(string dataDirectory)
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["WarehouseContext"].ConnectionString.Replace("|DataDirectory|", dataDirectory);
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = @"
+CREATE TABLE IF NOT EXISTS ProductCategory (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS Product (Id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Description TEXT, EntryDate DATETIME NOT NULL, ExpirationDate DATETIME NOT NULL, Quantity INTEGER NOT NULL, CategoryId INTEGER NOT NULL, FOREIGN KEY (CategoryId) REFERENCES ProductCategory(Id));
+CREATE TABLE IF NOT EXISTS SaleHistory (Id INTEGER PRIMARY KEY AUTOINCREMENT, ProductId INTEGER NOT NULL, Quantity INTEGER NOT NULL, SaleDate DATETIME NOT NULL);";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+    }
+}

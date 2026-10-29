@@ -1,0 +1,16 @@
+﻿using System;
+using System.Windows.Forms;
+using Project_2_Warehouse.Services;
+
+namespace Project_2_Warehouse
+{
+    public partial class SalesHistoryForm : Form
+    {
+        public SalesHistoryForm() { InitializeComponent(); Load += (s, e) => LoadHistory(); }
+        private async void LoadHistory()
+        {
+            try { salesGrid.DataSource = await WarehouseService.GetSalesAsync(); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Eroare"); }
+        }
+    }
+}

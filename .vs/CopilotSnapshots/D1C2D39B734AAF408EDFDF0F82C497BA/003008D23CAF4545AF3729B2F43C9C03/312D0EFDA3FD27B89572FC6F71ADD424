@@ -1,0 +1,18 @@
+﻿namespace Project_2_Warehouse
+{
+    partial class SellProductForm
+    {
+        private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.Label productLabel;
+        private System.Windows.Forms.NumericUpDown quantityNumeric;
+        private System.Windows.Forms.Button sellButton, cancelButton;
+        protected override void Dispose(bool disposing) { if (disposing && components != null) components.Dispose(); base.Dispose(disposing); }
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container(); productLabel = new System.Windows.Forms.Label(); quantityNumeric = new System.Windows.Forms.NumericUpDown(); sellButton = new System.Windows.Forms.Button(); cancelButton = new System.Windows.Forms.Button();
+            productLabel.Location = new System.Drawing.Point(20, 20); productLabel.AutoSize = true; quantityNumeric.Location = new System.Drawing.Point(20, 55); quantityNumeric.Minimum = 1; quantityNumeric.Value = 1;
+            sellButton.Text = "Vinde"; sellButton.Location = new System.Drawing.Point(20, 95); sellButton.Click += new System.EventHandler(ConfirmSale); cancelButton.Text = "Renunță"; cancelButton.Location = new System.Drawing.Point(110, 95); cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            Controls.AddRange(new System.Windows.Forms.Control[] { productLabel, quantityNumeric, sellButton, cancelButton }); ClientSize = new System.Drawing.Size(560, 145); Text = "Vânzare produs"; StartPosition = System.Windows.Forms.FormStartPosition.CenterParent; AcceptButton = sellButton; CancelButton = cancelButton;
+        }
+    }
+}

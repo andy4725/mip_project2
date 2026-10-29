@@ -1,0 +1,135 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Project_2_Warehouse.Data;
+using Project_2_Warehouse.Models;
+
+namespace Project_2_Warehouse.Services
+{
+    public static class WarehouseService
+    {
+        public static Task<List<ProductView>> GetProductsAsync(string filter)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    var query = db.Products.Include("Category").AsQueryable();
+                    if (!string.IsNullOrWhiteSpace(filter))
+                    {
+                        filter = filter.Trim();
+                        query = query.Where(p => p.Name.Contains(filter) || p.Description.Contains(filter) || p.Category.Name.Contains(filter));
+                    }
+                    return query.OrderBy(p => p.Name).Select(p => new ProductView
+                    {
+                        Id = p.Id, Name = p.Name, Description = p.Description,
+                        EntryDate = p.EntryDate, ExpirationDate = p.ExpirationDate,
+                        Quantity = p.Quantity, CategoryId = p.CategoryId,
+                        Category = p.Category.Name
+                    }).ToList();
+                }
+            });
+        }
+
+        public static Task<List<ProductCategory>> GetCategoriesAsync()
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext()) return db.Categories.OrderBy(c => c.Name).ToList();
+            });
+        }
+
+        public static Task AddCategoryAsync(string name)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    db.Categories.Add(new ProductCategory { Name = name.Trim() });
+                    db.SaveChanges();
+                }
+            });
+        }
+
+        public static Task AddProductAsync(Product product)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext()) { db.Products.Add(product); db.SaveChanges(); }
+            });
+        }
+
+        public static Task AddExistingProductQuantityAsync(int productId, int quantity)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    var product = db.Products.Find(productId);
+                    if (product == null) throw new InvalidOperationException("The product does not exist.");
+                    product.Quantity += quantity;
+                    db.SaveChanges();
+                }
+            });
+        }
+
+        public static Task SellProductAsync(int productId, int quantity)
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                using (var transaction = db.Database.BeginTransaction())
+                {
+                    var product = db.Products.Find(productId);
+                    if (product == null) throw new InvalidOperationException("The product no longer exists.");
+                    if (quantity <= 0 || quantity > product.Quantity) throw new InvalidOperationException("The quantity to sell is invalid.");
+                    db.SalesHistory.Add(new SaleHistory { ProductId = product.Id, Quantity = quantity, SaleDate = DateTime.Now });
+                    product.Quantity -= quantity;
+                    if (product.Quantity == 0) db.Products.Remove(product);
+                    db.SaveChanges();
+                    transaction.Commit();
+                }
+            });
+        }
+
+        public static Task<List<SaleView>> GetSalesAsync()
+        {
+            return AsyncTask.Run(() =>
+            {
+                using (var db = new WarehouseContext())
+                {
+                    return (from sale in db.SalesHistory
+                            join product in db.Products on sale.ProductId equals product.Id into productGroup
+                            from product in productGroup.DefaultIfEmpty()
+                            join category in db.Categories on product.CategoryId equals category.Id into categoryGroup
+                            from category in categoryGroup.DefaultIfEmpty()
+                            orderby sale.SaleDate descending
+                             select new SaleView { Id = sale.Id, ProductId = sale.ProductId, Quantity = sale.Quantity, SaleDate = sale.SaleDate, Category = category == null ? "Deleted Product" : category.Name, ProductName = product == null ? "Deleted Product" : product.Name }).ToList();
+                }
+            });
+        }
+    }
+
+    public class ProductView
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTime EntryDate { get; set; }
+        public DateTime ExpirationDate { get; set; }
+        public int Quantity { get; set; }
+        public int CategoryId { get; set; }
+        public string Category { get; set; }
+    }
+
+    public class SaleView
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string Category { get; set; }
+        public int Quantity { get; set; }
+        public DateTime SaleDate { get; set; }
+    }
+}
